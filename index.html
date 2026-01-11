@@ -1097,7 +1097,7 @@
                 <span>Transparent On-Chain Giving</span>
             </div>
             <h1>Charity Coin</h1>
-            <p>5% of CharityCoin's supply to each charity and 100% of creator fees go directly to verified charity wallets. Track every donation on-chain.</p>
+            <p>5% of CharityCoin's supply goes directly to verified charity wallets — 1% to each. Plus 100% of creator fees. Track every donation on-chain.</p>
         </section>
 
         <!-- Contract Address Bar -->
@@ -1119,7 +1119,7 @@
 
         <section id="tracker" class="stats-grid">
             <div class="stat-card" onclick="animateValue('tokenValue')">
-                <span class="stat-tooltip">25% token allocation value</span>
+                <span class="stat-tooltip">5% token allocation value</span>
                 <div class="stat-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
@@ -1128,7 +1128,7 @@
                 </div>
                 <div class="stat-label">Token Allocation</div>
                 <div class="stat-value" id="tokenValue">$0.00</div>
-                <div class="stat-sub">25% of supply</div>
+                <div class="stat-sub">5% of supply</div>
                 <div class="stat-trend neutral">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M5 12h14"/>
@@ -1530,7 +1530,7 @@
         <footer>
             <div class="footer-content">
                 <div class="footer-info">
-                    <p>CharityCoin allocates 5% of total supply to each of five verified charity wallets (25% total) and splits 100% of creator fees evenly among them. All transactions are publicly verifiable on-chain.</p>
+                    <p>CharityCoin allocates 5% of total supply to verified charity wallets — 1% to each of five organizations. Plus 100% of creator fees split evenly. All transactions are publicly verifiable on-chain.</p>
                 </div>
                 <div class="footer-links">
                     <a href="#">Twitter</a>
@@ -1559,10 +1559,10 @@
             
             // ═══════════════════════════════════════════════════════════
             // Market cap fetched automatically from DexScreener API
-            // Token Allocation = 25% of market cap (5% per charity, auto-calculated)
+            // Token Allocation = 5% of market cap (1% per charity, auto-calculated)
             // ═══════════════════════════════════════════════════════════
             
-            tokenAllocationPercent: 0.25,  // 25% of supply for charity (5% each)
+            tokenAllocationPercent: 0.05,  // 5% of supply for charity (1% each)
             numCharities: 5,
             refreshInterval: 30000  // Refresh every 30 seconds
         };
