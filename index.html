@@ -1734,7 +1734,7 @@
             }
             
             try {
-                // Fetch token pairs - includes price, volume, and liquidity
+                // Fetch token pairs - includes price and liquidity
                 const pairsResponse = await fetch(
                     `https://solana-gateway.moralis.io/token/mainnet/${CONFIG.contractAddress}/pairs`,
                     {
@@ -1758,49 +1758,70 @@
                         // Get price and calculate market cap
                         const price = parseFloat(mainPair.usdPrice) || 0;
                         currentMarketCap = price * 1000000000; // 1B supply
-                        
-                        // Get 24h volume
-                        const volume24h = parseFloat(mainPair.volume24hrUsd) || 0;
-                        console.log('24h Volume:', volume24h);
-                        
-                        // Store volume for display
-                        totalVolume = volume24h;
                     }
                 }
 
-                // Fetch aggregated stats for total volume across all time
-                const statsResponse = await fetch(
-                    `https://solana-gateway.moralis.io/token/mainnet/${CONFIG.contractAddress}/pairs/stats`,
-                    {
+                // Paginate through ALL swaps to get total lifetime volume
+                let allSwaps = [];
+                let cursor = null;
+                let pageCount = 0;
+                
+                console.log('Fetching all swaps...');
+                
+                do {
+                    const url = cursor 
+                        ? `https://solana-gateway.moralis.io/token/mainnet/${CONFIG.contractAddress}/swaps?order=DESC&limit=100&cursor=${cursor}`
+                        : `https://solana-gateway.moralis.io/token/mainnet/${CONFIG.contractAddress}/swaps?order=DESC&limit=100`;
+                    
+                    const response = await fetch(url, {
                         headers: {
                             'accept': 'application/json',
                             'X-API-Key': CONFIG.moralisApiKey
                         }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.result && data.result.length > 0) {
+                            allSwaps = allSwaps.concat(data.result);
+                            pageCount++;
+                            console.log(`Page ${pageCount}: ${data.result.length} swaps (Total: ${allSwaps.length})`);
+                        }
+                        cursor = data.cursor || null;
+                    } else {
+                        console.log('Swaps fetch error:', response.status);
+                        break;
                     }
-                );
+                } while (cursor);
+
+                console.log('Total swaps fetched:', allSwaps.length);
                 
-                if (statsResponse.ok) {
-                    const statsData = await statsResponse.json();
-                    console.log('Stats data:', statsData);
+                if (allSwaps.length > 0) {
+                    // Log first swap to see structure
+                    console.log('Sample swap:', allSwaps[0]);
                     
-                    // Try to get total volume from stats
-                    const totalVol = parseFloat(statsData.totalVolume) || 
-                                     parseFloat(statsData.volumeUsd) ||
-                                     parseFloat(statsData.totalVolumeUsd) ||
-                                     parseFloat(statsData.buyVolumeUsd) + parseFloat(statsData.sellVolumeUsd) || 0;
+                    // Calculate total volume from all swaps
+                    totalVolume = allSwaps.reduce((sum, swap) => {
+                        // Try different field names
+                        const value = parseFloat(swap.totalValueUsd) || 
+                                      parseFloat(swap.amountUsd) || 
+                                      parseFloat(swap.valueUsd) ||
+                                      parseFloat(swap.usdValue) ||
+                                      parseFloat(swap.bought?.valueUsd) ||
+                                      parseFloat(swap.sold?.valueUsd) || 0;
+                        return sum + value;
+                    }, 0);
                     
-                    if (totalVol > 0) {
-                        totalVolume = totalVol;
-                    }
+                    console.log('Total lifetime volume:', totalVolume);
                 }
 
-                // Calculate creator fees: volume × 0.38% (our computed rate)
+                // Calculate creator fees: volume × 0.38%
                 creatorFeesEstimate = totalVolume * CONFIG.creatorFeeRate;
-                console.log('Total Volume:', totalVolume, 'Creator Fees:', creatorFeesEstimate);
+                console.log('Estimated creator fees:', creatorFeesEstimate);
                 
                 const liveIndicator = document.querySelector('.live-indicator');
                 if (liveIndicator) {
-                    liveIndicator.title = `Last updated: ${new Date().toLocaleTimeString()}`;
+                    liveIndicator.title = `Last updated: ${new Date().toLocaleTimeString()} | ${allSwaps.length} total trades`;
                 }
                 
                 updateDisplays();
