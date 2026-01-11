@@ -187,7 +187,7 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1px;
             background: var(--gray-200);
             border: 1px solid var(--gray-200);
@@ -1118,6 +1118,24 @@
              ═══════════════════════════════════════════════════════════════ -->
 
         <section id="tracker" class="stats-grid">
+            <div class="stat-card" onclick="animateValue('marketCap')">
+                <span class="stat-tooltip">Live market cap</span>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"/>
+                        <path d="M18 9l-5 5-4-4-3 3"/>
+                    </svg>
+                </div>
+                <div class="stat-label">Market Cap</div>
+                <div class="stat-value" id="marketCap">$0.00</div>
+                <div class="stat-sub">$CHARITY</div>
+                <div class="stat-trend up">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 15l-6-6-6 6"/>
+                    </svg>
+                    Live
+                </div>
+            </div>
             <div class="stat-card" onclick="animateValue('tokenValue')">
                 <span class="stat-tooltip">5% token allocation value</span>
                 <div class="stat-icon">
@@ -1137,7 +1155,7 @@
                 </div>
             </div>
             <div class="stat-card" onclick="animateValue('creatorFees')">
-                <span class="stat-tooltip">Pump.fun creator fees</span>
+                <span class="stat-tooltip">Estimated creator fees (0.38% of volume)</span>
                 <div class="stat-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
@@ -1626,7 +1644,8 @@
             const el = document.getElementById(id);
             const tokenAllocation = currentMarketCap * CONFIG.tokenAllocationPercent;
             let value = 0;
-            if (id === 'tokenValue') value = tokenAllocation;
+            if (id === 'marketCap') value = currentMarketCap;
+            else if (id === 'tokenValue') value = tokenAllocation;
             else if (id === 'creatorFees') value = creatorFeesEstimate;
             else if (id === 'totalRaised') value = tokenAllocation + creatorFeesEstimate;
             animateCount(el, 0, value, 1500);
@@ -1691,6 +1710,7 @@
             const perCharity = totalCharity / CONFIG.numCharities;
 
             // Update main stats
+            document.getElementById('marketCap').textContent = formatCurrency(currentMarketCap);
             document.getElementById('tokenValue').textContent = formatCurrency(tokenAllocation);
             document.getElementById('creatorFees').textContent = formatCurrency(creatorFeesEstimate);
             document.getElementById('totalRaised').textContent = formatCurrency(totalCharity);
